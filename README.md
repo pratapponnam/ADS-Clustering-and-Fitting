@@ -1,1 +1,1 @@
-# ADS-Clustering-and-Fitting
+This repository contains a Python code that shows three statistical graphs, clustering and fitting prediction. Also,a PDF report explaining the plotted graphs,Clustering, fitting prediction and the dataset.
