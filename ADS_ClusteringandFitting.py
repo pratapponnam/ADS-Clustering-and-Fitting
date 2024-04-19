@@ -35,7 +35,8 @@ def download_data(url):
                     f.write(response.content)
                 break
             else:
-                print("Failed to download CSV file. Status code:", response.status_code)
+                print("Failed to download CSV file. Status code:",
+                      response.status_code)
         #if exception is raised,continuing the loop
         except requests.exceptions.HTTPError :
             continue
@@ -51,6 +52,9 @@ def download_data(url):
 
 
 def PB_Process_Data(df):
+    """
+    Function to clean a data frame with required columns 
+    """
     df = df.drop(['Country Name','Country Code','Series Code'],axis =1)
     df.set_index('Series Name', inplace=True)
     df= df.T
@@ -64,37 +68,37 @@ def PB_Process_Data(df):
          "Population density (people per sq. km of land area)":
                                     "Population density",
          "Foreign direct investment, net inflows (% of GDP)"
-                                   :"Foreign direct investment, net inflows",
+                                   :"Foreign investment(inflows)",
          "Foreign direct investment, net outflows (% of GDP)"
-                                   :"Foreign direct investment, net outflows",
+                                   :"Foreign investment(outflows)",
          "Expense (% of GDP)"
                                    :"Expense",
          "Exports of goods and services (% of GDP)"
                                    :"Exports of Goods and Services"})
+    df.index = df.index.astype(int)
     return df
  
 
-def plot_Line_Graph(*df):
+def PB_plot_Line_Graph(*df):
     """
     Defining a function to create a Line plot 
-    to identify the relation between Forest Area and Population Density
+    to identify the relation between Foreign Investments across countries
     """
     plt.figure(figsize=(7, 5))
-    #plotting the global temp change data
+    
     cmap = ['red','skyblue','orange','green']
     
+    #plotting the Foreign Investments Data
     for i, df in enumerate(df):
-        sns.lineplot( data = df['Foreign direct investment, net inflows'], color = cmap[i],marker ='o',label = x[i])
+        sns.lineplot( data = df['Foreign investment(inflows)'], 
+                     color = cmap[i],marker ='o',label = x[i])
         
     
     #set the titles, labels, limits and grid values
     plt.title('Relation between Foreign Investments across countries')
     plt.xlabel('Years')
     plt.ylabel('Foreign Investments')
-    plt.grid(True)
-    #plt.xscale(5)
-    #plt.xlim(1990,2020)
-    plt.xticks(rotation=45)
+    plt.grid()
     # Save the plot as Linegraph.png
     plt.savefig('Linegraph.png')
     # Show the plot
@@ -105,15 +109,16 @@ def plot_Line_Graph(*df):
 def PB_Plot_Histogram(*df):
     """
     Defining a function to create a histogram 
-    to understand the frequency of temperature 
-    anomalies for different zones across the years
+    to understand the frequency of Employment to Pop ratio
+    for different countries across the years
     """
     plt.figure(figsize=(7, 5))
     
-    # plotting an overlapped histogram to observe the frequency of the temp.
+    # plotting an overlapped histogram to observe the frequency of the 
+    # Employment ratio.
     for i, df in enumerate(df):
-        sns.histplot(df['Employment to Pop ratio'], kde=True, stat="density",bins=10, 
-                     linewidth=0, label=x[i],alpha=0.5)
+        sns.histplot(df['Employment to Pop ratio'], kde=True, stat="density"
+                     ,bins=10,linewidth=0, label=x[i],alpha=0.5)
     
     #set the titles, legend, labels and grid 
     plt.title('Distribution of Employment to Pop ratio')
@@ -130,7 +135,7 @@ def PB_Plot_Histogram(*df):
 
 
 
-def plot_heatmap_correlation(df):
+def PB_plot_heatmap_correlation(df):
     """
     Defining a function to create a Heatmap to plot
     correlation between different factors 
@@ -151,7 +156,7 @@ def plot_heatmap_correlation(df):
     return
 
 
-def one_silhoutte_inertia(n, xy):
+def PB_one_silhoutte_inertia(n, xy):
     """ 
     Calculates the silhoutte score and WCSS for n clusters 
     """
@@ -176,9 +181,12 @@ def PB_Plot_Fitted_GDP_Expense(labels, xy, xkmeans, ykmeans, centre_labels):
     cmap = ListedColormap(colours)
     
     fig, ax = plt.subplots(dpi=144)
-    s = ax.scatter(xy[:, 0], xy[:, 1], c=labels, cmap=cmap, marker='o', label='Data')
+    #Plot the data with different colors for clusters
+    s = ax.scatter(xy[:, 0], xy[:, 1], c=labels, cmap=cmap,
+                   marker='o', label='Data')
 
-    ax.scatter(xkmeans, ykmeans, c=centre_labels, cmap=cmap, marker='x', s=100, label='Estimated Centres')
+    ax.scatter(xkmeans, ykmeans, c=centre_labels, cmap=cmap,
+               marker='x', s=100, label='Estimated Centres')
 
     cbar = fig.colorbar(s, ax=ax)
     cbar.set_ticks(np.unique(labels))
@@ -195,7 +203,8 @@ def PB_Plot_Elbow_Method(min_k, max_k, wcss, best_n):
     """
     fig, ax = plt.subplots(dpi=144)
     ax.plot(range(min_k, max_k + 1), wcss, 'kx-')
-    ax.scatter(best_n, wcss[best_n-min_k], marker='o', color='red', facecolors='none', s=50)
+    ax.scatter(best_n, wcss[best_n-min_k], marker='o', 
+               color='red', facecolors='none', s=50)
     ax.set_xlabel('k')
     ax.set_xlim(min_k, max_k)
     ax.set_ylabel('WCSS')
@@ -203,7 +212,7 @@ def PB_Plot_Elbow_Method(min_k, max_k, wcss, best_n):
     return
 
 
-def logistic(t, n0, g, t0):
+def PB_Logistic_Fit(t, n0, g, t0):
     """
     Calculates the logistic function with scale factor n0 and growth rate g
     """
@@ -216,42 +225,66 @@ def logistic(t, n0, g, t0):
 #storing the filelinks in variables
 url1 = 'https://github.com/pratapponnam/ADS-Clustering-and-Fitting/blob/main/GDP_data.csv?raw=True'
 
-
+#downloading the data
 df_GDP =  download_data(url1)
+
+#splitting the data according to countries
 df_France = df_GDP[df_GDP['Country Name'].isin(['France'])]
 df_Swedon = df_GDP[df_GDP['Country Name'].isin(['Sweden'])]
 df_Italy = df_GDP[df_GDP['Country Name'].isin(['Italy'])]
 df_Bulgaria = df_GDP[df_GDP['Country Name'].isin(['Bulgaria'])]
 
-
+#Processsing the Data
 df_France = PB_Process_Data(df_France)
 df_Swedon = PB_Process_Data(df_Swedon)
 df_Bulgaria = PB_Process_Data(df_Bulgaria)
 df_Italy = PB_Process_Data(df_Italy)
 
-
+#list to store the coutries names
 x = ['France','Italy','Swedon','Bulgaria']
 
-plot_Line_Graph(df_France,df_Italy,df_Swedon,df_Bulgaria)
+#plotting Line graph
+PB_plot_Line_Graph(df_France,df_Italy,df_Swedon,df_Bulgaria)
 
+#plotting Histogram
 PB_Plot_Histogram(df_France,df_Italy,df_Swedon,df_Bulgaria)
 
+#dataframe which includes all the countries data
 df= pd.concat([df_France,df_Italy,df_Swedon,df_Bulgaria])
-plot_heatmap_correlation(df)
 
+#Using describe function for mean, stanadrd deviation, min and max value.
+print('Stats of the data', end='\n')
+df.describe()
+
+#basic statistics of the data
+
+print('Skewness of the data', end='\n')
+print(df.skew() , end='\n\n')
+
+print('Kurtosis of the data', end='\n')
+print(df.kurtosis() , end='\n\n')
+
+print('Correlation of the data', end='\n')
+print(df.corr() , end='\n\n')
+
+
+#Plotting Heatmap
+PB_plot_heatmap_correlation(df)
+
+#Clustering the GDP and Expense data 
 df_clust = df[['GDP per capita','Expense']].copy()
 scaler = RobustScaler()
 norm = scaler.fit_transform(df_clust)
 
-
-
+#craeting a list of colors
 colours = plt.cm.Set1(np.linspace(0, 1, 5))
 cmap = ListedColormap(colours)
 
+#finding the best number of CLusters using silhoutte method
 wcss = []
 best_n, best_score = None, -np.inf
 for n in range(2, 11):  # 2 to 10 clusters
-    score, inertia = one_silhoutte_inertia(n, norm)
+    score, inertia = PB_one_silhoutte_inertia(n, norm)
     wcss.append(inertia)
     if score > best_score:
         best_n = n
@@ -259,10 +292,12 @@ for n in range(2, 11):  # 2 to 10 clusters
     #print(f"{n:2g} clusters silhoutte score = {score:0.2f}")
 
 print(f"Best number of clusters = {best_n:2g}")
+
+#finding the best number of CLusters using elbow method
 PB_Plot_Elbow_Method(2, 10, wcss, best_n)
 
-
-inv_norm = scaler.inverse_transform(norm)  # this is important for plotting data accurately
+#For plotting data accurately normalising the data
+inv_norm = scaler.inverse_transform(norm)  
 for k in range(3, 5):
     kmeans = KMeans(n_clusters=k, n_init=20)
     kmeans.fit(norm)     # fit done on x,y pairs
@@ -277,60 +312,70 @@ for k in range(3, 5):
     
 
 
-
+#craeting a new Dataframe with only Bulgaria GDP data for lopgistic fitting
 df_Bulgaria_fit = df_Bulgaria[['GDP per capita']]
 df_Bulgaria_fit.index = df_Bulgaria_fit.index.astype(int)
 
 
 # let's normalise the time frame, quite important for exponentials
-numeric_index = (df_Bulgaria_fit.index - 2013).values
+numeric_index = (df_Bulgaria_fit.index - 2005).values
 
-# give some initial guesses of N0 and growth
-p, cov = curve_fit(logistic, numeric_index, df_Bulgaria_fit['GDP per capita'],
+#give some initial guesses of N0 and growth
+p, cov = curve_fit(PB_Logistic_Fit, numeric_index, df_Bulgaria_fit['GDP per capita'],
                   p0=(1.2e12, 0.03, 10))
 
-# get uncertainties on each parameter
+#get uncertainties on each parameter
 sigma = np.sqrt(np.diag(cov))
 
-print(f"N0 = {p[0]:g} +/- {sigma[0]:g}")
-print(f"g = {p[1]:.2f} +/- {sigma[1]:.2f}")
-print(f"t0 = {p[2] + 1990:.2f} +/- {sigma[2]:.2f}")
-
-
 fig, ax = plt.subplots(dpi=144)
-df_Bulgaria_fit= df_Bulgaria_fit.assign(Logistic_Fit = logistic(numeric_index, *p))
-df_Bulgaria_fit.plot(ax=ax, ylabel='GDP £')
+#adding a new columns for the logistic fit
+df_Bulgaria_fit= df_Bulgaria_fit.assign(Logistic_Fit = 
+                                        PB_Logistic_Fit(numeric_index, *p))
+#plotting the fitted line along with the GDP data
+df_Bulgaria_fit.plot(ax=ax, ylabel='GDP per capita')
 #ax.set_yscale('log')
 plt.show()
 
+#Extending the fitted line to 2050 to predict the GDP
+
 numeric_index = (df_Bulgaria_fit.index - 2005).values
-p, cov = curve_fit(logistic, numeric_index, df_Bulgaria_fit['GDP per capita'],
+p, cov = curve_fit(PB_Logistic_Fit, numeric_index, df_Bulgaria_fit['GDP per capita'],
                   p0=(1.2e12, 0.03, 10))
-gdp_2050 = logistic(2050 - 2005, *p)  # remember to subtract the 1990 as we did when 'training'
-print(f"GDP in 2050: {gdp_2050:g}")
+
+#subtract the 2005 as we did when 'training'
+gdp_2040 = PB_Logistic_Fit(2040 - 2005, *p) 
+ 
+print(f"GDP in 2040: {gdp_2040:g}")
 
 # take 1000 normal random samples for each parameter
 sample_params = ss.multivariate_normal.rvs(mean=p, cov=cov, size=1000)
 
 # standard deviation of all possible parameter sampling
-gdp_unc_2050 = np.std(logistic(2050 - 2005, *sample_params.T))  # note the transpose
+gdp_unc_2040 = np.std(PB_Logistic_Fit(2040 - 2005, *sample_params.T)) 
 
-print(f"GDP in 2050: {gdp_2050:g} +/- {gdp_unc_2050:g}")
+print(f"GDP in 2040: {gdp_2040:g} +/- {gdp_unc_2040:g}")
 
 fig, ax = plt.subplots(dpi=144)
 # create array of values within data, and beyond
-time_predictions = np.arange(1990, 2050, 1)
+time_predictions = np.arange(1990, 2040, 1)
 # determine predictions for each of those times
-gdp_predictions = logistic(time_predictions - 2005, *p)
+gdp_predictions = PB_Logistic_Fit(time_predictions - 2005, *p)
 # determine uncertainty at each prediction
-gdp_uncertainties = [np.std(logistic(future_time - 2005, *sample_params.T)) for future_time in time_predictions]
+gdp_uncertainties = [np.std(PB_Logistic_Fit(future_time - 2005, *sample_params.T)
+                            ) for future_time in time_predictions]
 
-ax.plot(df_Bulgaria_fit.index, df_Bulgaria_fit['GDP per capita'], 'b-', label='Data')
+#ploptting the data along with the logistic fit and the uncertainities
+ax.plot(df_Bulgaria_fit.index, df_Bulgaria_fit['GDP per capita'],
+        'b-', label='Data')
 ax.plot(time_predictions, gdp_predictions, 'k-', label='Logistic Fit')
-ax.fill_between(time_predictions, gdp_predictions - gdp_uncertainties, gdp_predictions + gdp_uncertainties, 
+ax.fill_between(time_predictions, gdp_predictions - gdp_uncertainties,
+                gdp_predictions + gdp_uncertainties, 
                 color='gray', alpha=0.5)
-ax.set_xlabel('Time')
+
+#Set the labels, legend and grid
+ax.set_xlabel('Years')
 ax.set_ylabel('GDP')
 ax.grid()
 ax.legend()
+#Show the plot
 plt.show()
