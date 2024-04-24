@@ -91,13 +91,14 @@ def PB_plot_Line_Graph(*df):
     #plotting the Foreign Investments Data
     for i, df in enumerate(df):
         sns.lineplot( data = df['Foreign investment(inflows)'], 
-                     color = cmap[i],marker ='o',label = x[i])
+                     color = cmap[i],marker ='o',label = x[i],
+                     )
         
     
     #set the titles, labels, limits and grid values
-    plt.title('Relation between Foreign Investments across countries')
+    plt.title('Comparision between Foreign Investments across countries')
     plt.xlabel('Years')
-    plt.ylabel('Foreign Investments')
+    plt.ylabel('Foreign Investments (% of GDP)')
     plt.grid()
     # Save the plot as Linegraph.png
     plt.savefig('Linegraph.png')
@@ -109,7 +110,7 @@ def PB_plot_Line_Graph(*df):
 def PB_Plot_Histogram(*df):
     """
     Defining a function to create a histogram 
-    to understand the frequency of Employment to Pop ratio
+    to understand the probability of Employment to Pop ratio
     for different countries across the years
     """
     plt.figure(figsize=(7, 5))
@@ -122,8 +123,8 @@ def PB_Plot_Histogram(*df):
     
     #set the titles, legend, labels and grid 
     plt.title('Distribution of Employment to Pop ratio')
-    plt.xlabel('Employment to Population ratio')
-    plt.ylabel('Frequency')
+    plt.xlabel('Employment to Population ratio (%)')
+    plt.ylabel('Probability')
     #plt.xlim(0.4,1.4)
     plt.grid(axis='y')
     plt.legend()
@@ -191,8 +192,8 @@ def PB_Plot_Fitted_GDP_Expense(labels, xy, xkmeans, ykmeans, centre_labels):
     cbar = fig.colorbar(s, ax=ax)
     cbar.set_ticks(np.unique(labels))
     ax.legend()
-    ax.set_xlabel('GDP per capita')
-    ax.set_ylabel('Expense')
+    ax.set_xlabel('GDP per capita ($)')
+    ax.set_ylabel('Expense (% of GDP)')
     plt.show()
     return
 
@@ -374,7 +375,7 @@ ax.fill_between(time_predictions, gdp_predictions - gdp_uncertainties,
 
 #Set the labels, legend and grid
 ax.set_xlabel('Years')
-ax.set_ylabel('GDP')
+ax.set_ylabel('GDP ($)')
 ax.grid()
 ax.legend()
 #Show the plot
