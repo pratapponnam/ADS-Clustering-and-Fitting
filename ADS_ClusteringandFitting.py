@@ -2,7 +2,7 @@
 """
 Created on Wed Apr 10 19:58:07 2024
 
-@author: anude
+@author: pponnam
 """
 
 import numpy as np
@@ -20,7 +20,7 @@ import scipy.stats as ss
 
 def download_data(url):
     """
-    Function to downlaod the data from the url provided and 
+    Function to download the data from the url provided and 
     returns the data frame which has the downloaded data 
 
     """
@@ -96,7 +96,7 @@ def PB_plot_Line_Graph(*df):
         
     
     #set the titles, labels, limits and grid values
-    plt.title('Comparision between Foreign Investments across countries')
+    plt.title('Foreign Direct Investments (Inflows) across countries')
     plt.xlabel('Years')
     plt.ylabel('Foreign Investments (% of GDP)')
     plt.grid()
@@ -114,18 +114,19 @@ def PB_Plot_Histogram(*df):
     for different countries across the years
     """
     plt.figure(figsize=(7, 5))
+    cmap = ['red','skyblue','orange','green']
     
     # plotting an overlapped histogram to observe the frequency of the 
     # Employment ratio.
     for i, df in enumerate(df):
-        sns.histplot(df['Employment to Pop ratio'], kde=True, stat="density"
-                     ,bins=10,linewidth=0, label=x[i],alpha=0.5)
+        sns.histplot(df['Employment to Pop ratio'], kde=True, stat="density",
+                     bins=10,linewidth=0, label=x[i],alpha=0.5,
+                     color = cmap[i])
     
     #set the titles, legend, labels and grid 
     plt.title('Distribution of Employment to Pop ratio')
     plt.xlabel('Employment to Population ratio (%)')
     plt.ylabel('Probability')
-    #plt.xlim(0.4,1.4)
     plt.grid(axis='y')
     plt.legend()
     # Save the plot as histogram.png
@@ -242,7 +243,7 @@ df_Bulgaria = PB_Process_Data(df_Bulgaria)
 df_Italy = PB_Process_Data(df_Italy)
 
 #list to store the coutries names
-x = ['France','Italy','Swedon','Bulgaria']
+x = ['France','Italy','Sweden','Bulgaria']
 
 #plotting Line graph
 PB_plot_Line_Graph(df_France,df_Italy,df_Swedon,df_Bulgaria)
@@ -255,7 +256,7 @@ df= pd.concat([df_France,df_Italy,df_Swedon,df_Bulgaria])
 
 #Using describe function for mean, stanadrd deviation, min and max value.
 print('Stats of the data', end='\n')
-df.describe()
+print(df.describe())
 
 #basic statistics of the data
 
@@ -367,7 +368,7 @@ gdp_uncertainties = [np.std(PB_Logistic_Fit(future_time - 2005, *sample_params.T
 
 #ploptting the data along with the logistic fit and the uncertainities
 ax.plot(df_Bulgaria_fit.index, df_Bulgaria_fit['GDP per capita'],
-        'b-', label='Data')
+        'b-', label='Bulgaria GDP Data')
 ax.plot(time_predictions, gdp_predictions, 'k-', label='Logistic Fit')
 ax.fill_between(time_predictions, gdp_predictions - gdp_uncertainties,
                 gdp_predictions + gdp_uncertainties, 
@@ -375,7 +376,7 @@ ax.fill_between(time_predictions, gdp_predictions - gdp_uncertainties,
 
 #Set the labels, legend and grid
 ax.set_xlabel('Years')
-ax.set_ylabel('GDP ($)')
+ax.set_ylabel('GDP per capita($)')
 ax.grid()
 ax.legend()
 #Show the plot
